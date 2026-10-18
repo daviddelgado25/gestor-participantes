@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gestor de participantes</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="js/validacion.js" defer></script>
+  <script src="js/cookies.js" defer></script>
+  <script src="js/app.js" defer></script>
+</head>
+<body>
+  <header>
+    <h1>Gestor de participantes del evento</h1>
+  </header>
+
+  <main>
+    <!-- PREFERENCIAS (cookies) -->
+    <section aria-labelledby="t-pref">
+      <h2 id="t-pref">Preferencias</h2>
+      <form id="form-preferencias">
+        <div class="campo">
+          <label for="tema">Tema</label>
+          <select id="tema">
+            <option value="claro">Claro</option>
+            <option value="oscuro">Oscuro</option>
+          </select>
+        </div>
+        <div class="campo">
+          <label for="tamano">Tamaño de letra</label>
+          <select id="tamano">
+            <option value="normal">Normal</option>
+            <option value="grande">Grande</option>
+          </select>
+        </div>
+        <button type="submit">Guardar preferencias</button>
+        <button type="button" id="btn-restablecer">Restablecer</button>
+      </form>
+      <p id="estado-preferencias" role="status"></p>
+    </section>
+
+    <!-- ALTA -->
+    <section aria-labelledby="t-alta">
+      <h2 id="t-alta">Nueva inscripción</h2>
+      <form id="form-alta" novalidate>
+        <div class="campo">
+          <label for="nombre">Nombre</label>
+          <input id="nombre" type="text">
+          <span class="error-campo" id="error-nombre"></span>
+        </div>
+        <div class="campo">
+          <label for="edad">Edad</label>
+          <input id="edad" type="text" inputmode="numeric">
+          <span class="error-campo" id="error-edad"></span>
+        </div>
+        <div class="campo">
+          <label for="tipo">Tipo</label>
+          <select id="tipo">
+            <option value="">Elige un tipo</option>
+            <option value="estudiante">Estudiante</option>
+            <option value="profesional">Profesional</option>
+            <option value="invitado">Invitado</option>
+          </select>
+          <span class="error-campo" id="error-tipo"></span>
+        </div>
+        <div class="campo">
+          <label for="modalidad">Modalidad</label>
+          <select id="modalidad">
+            <option value="">Elige una modalidad</option>
+            <option value="presencial">Presencial</option>
+            <option value="online">Online</option>
+          </select>
+          <span class="error-campo" id="error-modalidad"></span>
+        </div>
+        <div class="campo">
+          <label for="experiencia">Experiencia (0 a 10)</label>
+          <input id="experiencia" type="text" inputmode="decimal">
+          <span class="error-campo" id="error-experiencia"></span>
+        </div>
+        <button type="submit">Inscribir</button>
+      </form>
+      <p id="resumen-errores" class="error-resumen" role="alert"></p>
+    </section>
+
+    <!-- ESTADÍSTICAS -->
+    <section aria-labelledby="t-stats">
+      <h2 id="t-stats">Estadísticas</h2>
+      <dl id="estadisticas" class="stats"></dl>
+      <button type="button" id="btn-primer-menor">Buscar primer menor de edad</button>
+      <p id="resultado-menor" role="status"></p>
+    </section>
+
+    <!-- LISTADO -->
+    <section aria-labelledby="t-lista">
+      <h2 id="t-lista">Participantes</h2>
+      <div class="filtros">
+        <div class="campo">
+          <label for="busqueda">Buscar por nombre</label>
+          <input id="busqueda" type="search">
+        </div>
+        <div class="campo">
+          <label for="filtro-modalidad">Modalidad</label>
+          <select id="filtro-modalidad">
+            <option value="todas">Todas</option>
+            <option value="presencial">Presencial</option>
+            <option value="online">Online</option>
+          </select>
+        </div>
+      </div>
+      <p id="mensaje-lista" role="status"></p>
+      <div id="lista" class="lista"></div>
+    </section>
+
+    <!-- JSON -->
+    <section aria-labelledby="t-json">
+      <h2 id="t-json">Exportar e importar (JSON)</h2>
+      <label for="json-texto">Contenido JSON</label>
+      <textarea id="json-texto" rows="8"></textarea>
+      <button type="button" id="btn-exportar">Exportar</button>
+      <button type="button" id="btn-importar">Importar</button>
+      <p id="mensaje-json" role="status"></p>
+    </section>
+
+    <!-- IFRAME -->
+    <section aria-labelledby="t-panel">
+      <h2 id="t-panel">Panel del evento</h2>
+      <iframe id="panel" src="panel.html" title="Panel del evento con total de inscritos y última inscripción"></iframe>
+    </section>
+
+    <!-- AYUDA -->
+    <section aria-labelledby="t-ayuda">
+      <h2 id="t-ayuda">Ayuda</h2>
+      <button type="button" id="btn-abrir-ayuda">Abrir ayuda</button>
+      <button type="button" id="btn-cerrar-ayuda">Cerrar ayuda</button>
+      <p id="estado-ayuda" role="status"></p>
+    </section>
+  </main>
+</body>
+</html>
