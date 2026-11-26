@@ -17,7 +17,9 @@ La aplicación **no funciona abriendo el HTML como `file://`**: hay que servirla
 
 Alternativa sin extensiones (con Python instalado):
 
-python \-m http.server 5500
+```
+python -m http.server 5500
+```
 
 y abrir `http://localhost:5500/index.html`.
 
@@ -27,19 +29,21 @@ y abrir `http://localhost:5500/index.html`.
 
 ## **2\. Estructura del proyecto**
 
-gestor-participantes/  
-├── index.html          Página principal (preferencias, alta, estadísticas, listado, JSON, iframe, ayuda)  
-├── panel.html          Panel del evento, incrustado en un iframe  
-├── ayuda.html          Ayuda, abierta con window.open  
-├── css/  
-│   └── styles.css      Estilos, tema claro/oscuro (.oscuro) y tamaño de letra (.grande)  
-├── js/  
-│   ├── validacion.js   Lógica de datos sin DOM: validar, generar id, estadísticas, validar colección  
-│   ├── cookies.js      leerCookie, guardarCookie, borrarCookie  
-│   ├── app.js          Interfaz de la página principal: eventos, DOM, JSON, postMessage, ventana  
-│   ├── panel.js        Receptor de mensajes y DOM propio del panel  
-│   └── ayuda.js        Datos del navegador mostrados en la ayuda  
+```
+gestor-participantes/
+├── index.html          Página principal (preferencias, alta, estadísticas, listado, JSON, iframe, ayuda)
+├── panel.html          Panel del evento, incrustado en un iframe
+├── ayuda.html          Ayuda, abierta con window.open
+├── css/
+│   └── styles.css      Estilos, tema claro/oscuro (.oscuro) y tamaño de letra (.grande)
+├── js/
+│   ├── validacion.js   Lógica de datos sin DOM: validar, generar id, estadísticas, validar colección
+│   ├── cookies.js      leerCookie, guardarCookie, borrarCookie
+│   ├── app.js          Interfaz de la página principal: eventos, DOM, JSON, postMessage, ventana
+│   ├── panel.js        Receptor de mensajes y DOM propio del panel
+│   └── ayuda.js        Datos del navegador mostrados en la ayuda
 └── README.md
+```
 
 **Separación de responsabilidades**
 
@@ -61,13 +65,13 @@ gestor-participantes/
 
 * **Archivos y funciones:** `app.js` (manejador `submit` de `#form-alta`), `validacion.js` (`validarParticipante`, `generarId`).  
 * `preventDefault` evita el envío del formulario. El formulario tiene `novalidate`: toda la validación se hace en JavaScript.  
-* `validarParticipante(datos)` recibe los textos del formulario y devuelve `{ valido, errores, participante }`:  
+* `validarParticipante(datos)` recibe los textos del formulario y devuelve `{ valido, errores, campos, participante }` (`errores` = lista para el resumen; `campos` = un mensaje por campo):  
   * **Nombre:** `trim()` y longitud de 2 a 60\.  
   * **Edad:** se comprueba que no sea cadena vacía **antes** de `Number(...)`, y después `Number.isFinite`, `Number.isInteger` y rango 0–120. `"18abc"` da `NaN` y se rechaza; `0` es válido.  
   * **Tipo:** solo `estudiante`, `profesional` o `invitado` (comparación estricta).  
   * **Modalidad:** solo `presencial` u `online`.  
   * **Experiencia:** no vacía, finita, de 0 a 10; admite decimales.  
-* Si hay errores: se muestran en el resumen `#resumen-errores`, **se conservan los valores escritos** (no se llama a `reset()`) y no se añade nada.  
+* Si hay errores: se muestran **junto a cada campo** (`#error-nombre`, `#error-edad`, … con borde rojo, `aria-invalid` y foco en el primer campo erróneo) y también en el resumen `#resumen-errores`; **se conservan los valores escritos** (no se llama a `reset()`) y no se añade nada.  
 * Si es correcto: `generarId` crea el id, se añade el participante con `new Date().toISOString()`, se hace `reset()` del formulario y se llama a `actualizarLista` y `actualizarEstadisticas` y `enviarResumenPanel`.  
 * `generarId(participantes)`: `Math.floor(Math.random() * 900000) + 100000` (entero de 100000 a 999999\) dentro de un `while` con **máximo de 100 intentos** y comprobación de duplicados con `for...of` y `break`. Si no consigue un id devuelve `null` y la interfaz muestra un error; nunca bloquea la pestaña.
 
@@ -105,7 +109,7 @@ gestor-participantes/
   * Recorrido de experiencia presencial: **`continue`** para omitir los `online`.  
   * Recorrido del primer menor: **`break`** en cuanto lo encuentra.  
 * Si no hay datos, las medias y extremos valen `null` y la interfaz muestra «Sin datos» (nunca `NaN`, `Infinity` ni valores inventados). Las medias se muestran con `toFixed(2)`, pero los cálculos conservan números.  
-* Botón «Buscar primer menor de edad»: muestra su nombre o «No hay ningún menor de edad».
+* Botón «Buscar primer menor de edad»: muestra su nombre o «No hay ningún menor de edad». El mensaje se limpia cada vez que cambia la colección para que no quede desfasado.
 
 ### **3.8 Exportar e importar JSON**
 
@@ -164,13 +168,13 @@ Antes de empezar: servir por HTTP, abrir DevTools (F12) y vigilar la pestaña **
 | A1 | Nombre `Marta Gil`, edad `25`, tipo `profesional`, modalidad `online`, experiencia `7` → Inscribir | Mensaje «Participante añadido», aparece una tarjeta (mayor de edad, experiencia avanzada), formulario vacío, total 4 |
 | A2 | Edad `0`, resto válido | Se admite; tarjeta «Menor de edad» |
 | A3 | Experiencia `3.5` | Se admite; clasificación «Inicial» |
-| A4 | Nombre vacío / `A` / solo espacios | Error de nombre; no se añade; se conservan los demás valores |
+| A4 | Nombre vacío / `A` / solo espacios | Error de nombre junto al campo; no se añade; se conservan los demás valores |
 | A5 | Edad vacía | Error de edad (no se interpreta como 0\) |
 | A6 | Edad `18abc` | Error de edad |
 | A7 | Edad `-1`, `121`, `17.5` | Error de edad en los tres casos |
 | A8 | Tipo o modalidad sin elegir | Error de tipo o modalidad |
 | A9 | Experiencia `10.1`, `-1`, `abc` o vacía | Error de experiencia |
-| A10 | Varios campos inválidos a la vez | Todos los errores en el resumen; nada se añade; los valores siguen en el formulario |
+| A10 | Varios campos inválidos a la vez | Todos los errores en el resumen y junto a cada campo; nada se añade; los valores siguen en el formulario |
 | A11 | Nombre `<b>Ana</b>` | La tarjeta muestra el texto literal, sin negrita |
 | A12 | Con DevTools: Elements → cambia el `value` de una opción de modalidad a `hibrida` y envía | Error de modalidad (la validación no depende del HTML) |
 
@@ -295,7 +299,7 @@ Con los 3 participantes de ejemplo:
 
 **Sesión 6: DOM**
 
-* `getElementById`, `querySelector`, `querySelectorAll` (recuento de tarjetas).  
+* `getElementById`, `querySelector` (formulario de preferencias, comprobando que no sea `null`), `querySelectorAll` (recuento de tarjetas).  
 * `createElement`, `append`, `remove`, `classList` (`add`, `toggle`, `remove`), `setAttribute`.  
 * `addEventListener`, `preventDefault`. Sin `innerHTML`.
 
@@ -347,14 +351,3 @@ Explicación a escribir: en el panel Scope se ve que `datos.edad` es la cadena `
 Sugerencia: pestaña Network, recarga con la caché desactivada y localiza `panel.html` (petición del iframe, `Type: document`). Pulsa «Abrir ayuda» y localiza `ayuda.html`.
 
 Explicación a escribir: método `GET`, código `200`, `Content-Type: text/html`; se ve que el panel se solicita **después** de que `app.js` asigne el `src`, y que el servidor solo entrega archivos estáticos (no hay peticiones de datos: la lógica y los datos viven en el navegador).
-
----
-
-## **8\. Uso de la inteligencia artificial**
-
-* **Enlace al chat utilizado:** https\://claude.ai/share/960972e4-94a4-49d5-9f92-5b09fa688181
-
-### **Análisis de decisiones con ayuda de la IA**
-
-Por cada consulta relevante indica: qué problema concreto querías resolver, qué habías intentado, qué te propuso la IA y qué **aceptaste, cambiaste o descartaste y por qué**, y qué pruebas hiciste para comprobarlo.Cambios del código que conviene analizar aquí, porque se revisaron con ayuda externa: separación de la validación de la colección en `validacion.js`; los tres recorridos de `calcularEstadisticas`; el `try/catch` limitado a `JSON.parse`; la validación estricta de tipos y fecha ISO en la importación; la asignación tardía del `src` del iframe; y el uso de `??` frente a `||`.
-
